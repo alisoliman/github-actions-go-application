@@ -33,3 +33,15 @@ jobs:
 
     - name: Test
       run: go test -v ./...
+    
+  lint-go:
+    name: Lint Go code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          version: v1.38.0
+          args: --timeout 10m --exclude SA5011

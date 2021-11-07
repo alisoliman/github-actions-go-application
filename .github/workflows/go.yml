@@ -20,7 +20,7 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-      
+
   test:
     runs-on: ubuntu-latest
     steps:
@@ -33,28 +33,3 @@ jobs:
 
     - name: Test
       run: go test -v ./...
-    
-  lint-go:
-    name: Lint Go code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          version: v1.38.0
-          args: --timeout 10m --exclude SA5011
-          
-  install-kubectl:
-    name: Install kubectl CLI
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Install kubectl
-        run: |
-          curl -LO "https://storage.googleapis.com/kubernetes-release/release/${env.KUBECTL_VERSION}/bin/linux/amd64/kubectl" && \
-          chmod +x kubectl && \
-          mv kubectl /usr/local/bin/ \
-          && echo "kubectl installed"

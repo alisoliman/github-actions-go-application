@@ -1,0 +1,72 @@
+name: Integration tests
+on: 
+  push:
+    branches:
+      - 'master'
+      - 'release-*'
+  pull_request:
+    branches:
+      - 'master'
+
+env:
+  # Golang version to use across CI steps
+  GOLANG_VERSION: '1.16.5'
+  KUBECTL_VERSION: 'v1.21.4'
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Build
+      run: go build -v ./...
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
+    - name: Test
+      run: go test -v ./...
+    
+  lint-go:
+    name: Lint Go code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run golangci-lint
+        uses: golangci/golangci-lint-action@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          only-new-issues: true
+          skip-build-cache: true
+          skip-go-installation: true
+          skip-pkg-cache: true
+          version: v1.38.0
+          args: --timeout 10m --exclude SA5011
+          
+  install-kubectl:
+    name: Install kubectl CLI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/${{ env.KUBECTL_VERSION }}/bin/linux/amd64/kubectl" && \
+          chmod +x kubectl && \
+          mv kubectl /usr/local/bin/ \
+          && echo "kubectl installed"

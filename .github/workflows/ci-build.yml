@@ -99,5 +99,5 @@ jobs:
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
           source ~/.bashrc && \
           kubectl krew install kuttl && \
-          /home/runner/work/github-actions-go-application/github-actions-go-application && \
+          cd /home/runner/work/github-actions-go-application/github-actions-go-application && \
           kubectl kuttl test --start-kind

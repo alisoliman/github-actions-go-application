@@ -93,11 +93,11 @@ jobs:
           tar zxvf "${KREW}.tar.gz" && \
           ./"${KREW}" install krew && \
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
-          source ~/.bashrc \
-          kubectl krew
-      - name: Verify krew installation
-        run: kubectl krew
-      - name: Install KUTTL
-        run: |
+          source ~/.bashrc && \
           kubectl krew install kuttl
-          echo kubectl kuttl version
+      # - name: Verify krew installation
+      #   run: kubectl krew
+      # - name: Install KUTTL
+      #   run: |
+      #     kubectl krew install kuttl
+      #     echo kubectl kuttl version

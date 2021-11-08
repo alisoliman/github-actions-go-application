@@ -85,8 +85,8 @@ jobs:
           && echo "kubectl installed"
       - name: Install K3D
         run: |
-          RUN curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-      - name: Install krew
+          curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+      - name: Install krew & KUTTL
         run: |
           set -x; cd "$(mktemp -d)" && \
           OS="$(uname | tr '[:upper:]' '[:lower:]')" && \

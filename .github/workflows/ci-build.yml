@@ -91,11 +91,13 @@ jobs:
           KREW="krew-${OS}_${ARCH}" && \
           curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" && \
           tar zxvf "${KREW}.tar.gz" && \
-          ./"${KREW}" install krew
-      - name: Export krew
-        run: |
-          echo 'export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"' >> ~/.bashrc
+          ./"${KREW}" install krew && \
+          export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH"
+      - name: Verify krew installation
+        run: echo kubectl krew
       - name: Install KUTTL
         run: |
           kubectl krew install kuttl
           echo kubectl kuttl version
+        with:
+          PATH: /root/.krew/bin:$PATH

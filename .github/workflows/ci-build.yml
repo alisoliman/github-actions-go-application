@@ -86,10 +86,13 @@ jobs:
       - name: Install K3D
         run: |
           curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-      - name: Verify K3D
+      # - name: Verify K3D
+      #   run: |
+      #     k3d cluster create mycluster
+      #     kubectl get nodes
+      - name: Install Kind
         run: |
-          k3d cluster create mycluster
-          kubectl get nodes
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
       - name: Install krew & KUTTL
         run: |
           set -x; cd "$(mktemp -d)" && \
@@ -102,7 +105,3 @@ jobs:
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
           source ~/.bashrc && \
           kubectl krew install kuttl
-      - name: Verify KUTTL
-        run: |
-          PATH=/root/.krew/bin:$PATH && \
-          kubectl kuttl --help

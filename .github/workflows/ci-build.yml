@@ -98,5 +98,5 @@ jobs:
           ./"${KREW}" install krew && \
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
           source ~/.bashrc && \
-          kubectl krew install kuttl
+          kubectl krew install kuttl && \
           kubectl kuttl test --start-kind=true ./tests/e2e/

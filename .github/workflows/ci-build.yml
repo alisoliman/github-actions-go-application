@@ -99,4 +99,5 @@ jobs:
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
           source ~/.bashrc && \
           kubectl krew install kuttl && \
+          ls && \
           kubectl kuttl test --start-kind

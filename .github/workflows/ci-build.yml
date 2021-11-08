@@ -83,6 +83,9 @@ jobs:
           chmod +x kubectl && \
           mv kubectl /usr/local/bin/ \
           && echo "kubectl installed"
+      - name: Install K3D
+        run: |
+          RUN curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
       - name: Install krew
         run: |
           set -x; cd "$(mktemp -d)" && \
@@ -95,11 +98,3 @@ jobs:
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
           source ~/.bashrc && \
           kubectl krew install kuttl
-      - name: KUTTL verification
-        run: kubectl kuttl version
-      # - name: Verify krew installation
-      #   run: kubectl krew
-      # - name: Install KUTTL
-      #   run: |
-      #     kubectl krew install kuttl
-      #     echo kubectl kuttl version

@@ -102,3 +102,7 @@ jobs:
           export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
           source ~/.bashrc && \
           kubectl krew install kuttl
+      - name: Verify KUTTL
+        run: |
+          PATH=/root/.krew/bin:$PATH && \
+          kubectl kuttl --help

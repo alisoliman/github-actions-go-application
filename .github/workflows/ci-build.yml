@@ -2,11 +2,11 @@ name: Integration tests
 on: 
   push:
     branches:
-      - 'master'
+      - 'main'
       - 'release-*'
   pull_request:
     branches:
-      - 'master'
+      - 'main'
 
 env:
   # Golang version to use across CI steps
@@ -18,28 +18,41 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+      - name: Check Out Repo 
+        uses: actions/checkout@v2
 
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
+      - name: Login to Docker Hub
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
-    - name: Build
-      run: go build -v ./...
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: ./Dockerfile
+          push: true
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/calc-app:latest
+
+      - name: Image digest
+        run: echo ${{ steps.docker_build.outputs.digest }}
+
+
 
   test:
     runs-on: ubuntu-latest
+    needs: [build]
     steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.17
-
-    - name: Test
-      run: go test -v ./...
+      - name: Check Out Repo 
+        uses: actions/checkout@v2
+      - name: Test
+        run: go test -v ./...
     
   lint-go:
     name: Lint Go code
@@ -70,3 +83,25 @@ jobs:
           chmod +x kubectl && \
           mv kubectl /usr/local/bin/ \
           && echo "kubectl installed"
+      - name: Install K3D
+        run: |
+          curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+      # - name: Verify K3D
+      #   run: |
+      #     k3d cluster create mycluster
+      #     kubectl get nodes
+      - name: Install Kind
+        run: |
+          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
+      - name: Install krew & KUTTL
+        run: |
+          set -x; cd "$(mktemp -d)" && \
+          OS="$(uname | tr '[:upper:]' '[:lower:]')" && \
+          ARCH="$(uname -m | sed -e 's/x86_64/amd64/' -e 's/\(arm\)\(64\)\?.*/\1\2/' -e 's/aarch64$/arm64/')" && \
+          KREW="krew-${OS}_${ARCH}" && \
+          curl -fsSLO "https://github.com/kubernetes-sigs/krew/releases/latest/download/${KREW}.tar.gz" && \
+          tar zxvf "${KREW}.tar.gz" && \
+          ./"${KREW}" install krew && \
+          export PATH="${KREW_ROOT:-$HOME/.krew}/bin:$PATH" >> ~/.bashrc && \
+          source ~/.bashrc && \
+          kubectl krew install kuttl

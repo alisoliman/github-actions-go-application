@@ -86,6 +86,10 @@ jobs:
       - name: Install K3D
         run: |
           curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
+      - name: Verify K3D
+        run: |
+          k3d cluster create mycluster
+          kubectl get nodes
       - name: Install krew & KUTTL
         run: |
           set -x; cd "$(mktemp -d)" && \

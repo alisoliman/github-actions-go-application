@@ -69,8 +69,8 @@ jobs:
           version: v1.38.0
           args: --timeout 10m --exclude SA5011
           
-  install-kubectl:
-    name: Prepare kubectl environment
+  run-integration-tests:
+    name: Run Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -100,4 +100,9 @@ jobs:
           source ~/.bashrc && \
           kubectl krew install kuttl && \
           cd /home/runner/work/github-actions-go-application/github-actions-go-application && \
-          kubectl kuttl test --start-kind
+          kubectl kuttl test --start-kind --artifacts-dir ${{ github.workspace }}/tests/artifacts
+      - name: Archive KUTTL Kind Logs
+        uses: actions/upload-artifact@v2
+        with:
+          name: KUTTL-Results
+          path: ${{ github.workspace }}/tests/artifacts/kind**

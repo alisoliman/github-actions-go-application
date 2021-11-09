@@ -3,4 +3,4 @@ kind: Deployment
 metadata:
   name: example-deployment
 status:
-  readyReplicas: 5
+  readyReplicas: 4

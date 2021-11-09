@@ -105,6 +105,7 @@ jobs:
           cd /home/runner/work/github-actions-go-application/github-actions-go-application && \
           kubectl kuttl test --start-kind --artifacts-dir ${{ github.workspace }}/tests/artifacts
       - name: Archive KUTTL Kind Logs
+        if: always()
         uses: actions/upload-artifact@v2
         with:
           name: KUTTL-Results

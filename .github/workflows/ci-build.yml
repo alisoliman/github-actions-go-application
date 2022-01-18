@@ -31,6 +31,7 @@ jobs:
           body: ${{ steps.tag_version.outputs.changelog }}
   build:
     name: Build & Deploy
+    needs: [tag_version]
     runs-on: ubuntu-latest
     steps:
       - name: Check Out Repo 

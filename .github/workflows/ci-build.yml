@@ -96,3 +96,7 @@ jobs:
         with:
           name: KUTTL-Results
           path: ${{ github.workspace }}/tests/artifacts/kind**
+      - name: Delete Image from Artifacts
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: calc-app

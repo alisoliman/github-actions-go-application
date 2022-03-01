@@ -15,6 +15,13 @@ spec:
         app: calc-app
     spec:
       containers:
-      - name: calc-app-container
+      - name: application
         image: calc-app:local
         imagePullPolicy: Never
+        resources:
+            requests:
+              cpu: "50m"
+              memory: "256Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"

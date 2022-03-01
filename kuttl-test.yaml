@@ -1,5 +1,8 @@
 apiVersion: kuttl.dev/v1beta1
 kind: TestSuite
+kindContainers:
+- calc-app:local
 testDirs:
 - ./tests/e2e
 parallel: 4
+timeout: 120

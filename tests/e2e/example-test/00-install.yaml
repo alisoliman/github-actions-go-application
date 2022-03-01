@@ -15,7 +15,6 @@ spec:
         app: calc-app
     spec:
       containers:
-      - name: calc-app
+      - name: calc-app-container
         image: calc-app:local
-        ports:
-        - containerPort: 80
+        imagePullPolicy: Never

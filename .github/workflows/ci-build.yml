@@ -69,13 +69,6 @@ jobs:
           chmod +x kubectl && \
           mv kubectl /usr/local/bin/ \
           && echo "kubectl installed"
-      # - name: Install Kind & Create Cluster
-      #   run: |
-      #     curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
-      #     kind create cluster --wait 5m
-      # - name: Load Docker Image in KIND
-      #   run: |
-      #     kind load docker-image calc-app:local
       - name: Install krew & KUTTL
         run: |
           set -x; cd "$(mktemp -d)" && \
@@ -97,6 +90,7 @@ jobs:
           name: KUTTL-Results
           path: ${{ github.workspace }}/tests/artifacts/kind**
       - name: Delete Image from Artifacts
+        if: always()
         uses: geekyeggo/delete-artifact@v1
         with:
           name: calc-app

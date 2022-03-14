@@ -3,19 +3,25 @@ kind: Deployment
 metadata:
   name: example-deployment
   labels:
-    app: nginx
+    app: calc-app
 spec:
   replicas: 3
   selector:
     matchLabels:
-      app: nginx
+      app: calc-app
   template:
     metadata:
       labels:
-        app: nginx
+        app: calc-app
     spec:
       containers:
-      - name: nginx
-        image: nginx:latest
-        ports:
-        - containerPort: 80
+      - name: application
+        image: calc-app:local
+        imagePullPolicy: Never
+        resources:
+            requests:
+              cpu: "50m"
+              memory: "256Mi"
+            limits:
+              cpu: "200m"
+              memory: "512Mi"

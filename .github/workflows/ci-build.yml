@@ -15,91 +15,68 @@ env:
   GOLANG_VERSION: '1.16.5'
   KUBECTL_VERSION: 'v1.21.4'
 
+
+
 jobs:
   build:
-    name: Build & Deploy
     runs-on: ubuntu-latest
     steps:
-      - name: Check Out Repo 
+      - name: Checkout
         uses: actions/checkout@v2
-      - name: Docker meta
-        id: meta
-        uses: docker/metadata-action@v3
-        with:
-          images: alisoliman/calc-app
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-      - name: Login to Docker Hub
-        uses: docker/login-action@v1
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
 
       - name: Set up Docker Buildx
-        id: buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Build and push
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      -
+        name: Build and export
         id: docker_build
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-
+          tags: calc-app:local
+          outputs: type=docker,dest=/tmp/myimage.tar
+      
+      -
+        name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: calc-app
+          path: /tmp/myimage.tar
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
-
-  run-unit-tests:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
-    needs: [build]
-    steps:
-      - name: Check Out Repo 
-        uses: actions/checkout@v2
-      - name: Test
-        run: go test -v ./...
-    
-  lint-go:
-    name: Lint Go code
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
-      - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v2
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          only-new-issues: true
-          skip-build-cache: true
-          skip-go-installation: true
-          skip-pkg-cache: true
-          version: v1.38.0
-          args: --timeout 10m --exclude SA5011
+      
           
   run-integration-tests:
-    name: Run Integration Tests
-    needs: [run-unit-tests]
+    name: Integration
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v2
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: calc-app
+          path: /tmp
+      - name: Load image
+        run: |
+          docker load --input /tmp/myimage.tar
+          docker image ls -a
       - name: Install kubectl
         run: |
           curl -LO "https://storage.googleapis.com/kubernetes-release/release/${{ env.KUBECTL_VERSION }}/bin/linux/amd64/kubectl" && \
           chmod +x kubectl && \
           mv kubectl /usr/local/bin/ \
           && echo "kubectl installed"
-      - name: Install K3D
-        run: |
-          curl -s https://raw.githubusercontent.com/rancher/k3d/main/install.sh | bash
-      - name: Install Kind
-        run: |
-          curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.8.1/kind-linux-amd64 && chmod +x ./kind && sudo mv ./kind /usr/local/bin/kind
       - name: Install krew & KUTTL
         run: |
           set -x; cd "$(mktemp -d)" && \
@@ -120,3 +97,8 @@ jobs:
         with:
           name: KUTTL-Results
           path: ${{ github.workspace }}/tests/artifacts/kind**
+      - name: Delete Image from Artifacts
+        if: always()
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: calc-app

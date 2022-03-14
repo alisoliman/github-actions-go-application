@@ -40,7 +40,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: true
           tags: calc-app:local
           outputs: type=docker,dest=/tmp/myimage.tar
       
@@ -55,7 +54,7 @@ jobs:
       
           
   run-integration-tests:
-    name: Run Integration Tests
+    name: Integration
     needs: [build]
     runs-on: ubuntu-latest
     steps:

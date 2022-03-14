@@ -1,0 +1,33 @@
+name: Check Main
+on:
+  pull_request:
+    branches:
+      - 'main'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Deploying affected apps
+    steps:
+      - uses: actions/checkout@v1
+      - uses: nrwl/last-successful-commit-action@v1
+        id: last_successful_commit
+        with:
+          branch: 'master'
+          workflow_id: 'ci-build.yml'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: echo "${{ steps.last_successful_commit.outputs.commit_hash }}"
+
+
+      - name: las commit
+        id: last_commit
+        run: |
+          echo "::set-output name=commit::$(git log -n 1 origin/main --pretty=format:"%H")"
+          echo "$(git log -n 1 origin/main --pretty=format:"%H")"
+      - name: Check pass state
+        run: |
+          if [ ${{ steps.last_commit.outputs.commit }} = ${{ steps.last_successful_commit.outputs.commit_hash }} ]; then
+            echo "Strings are equal."
+          else
+            echo "Strings are not equal."
+            exit 1
+          fi

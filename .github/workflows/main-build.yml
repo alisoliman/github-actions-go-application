@@ -15,6 +15,7 @@ jobs:
           branch: 'main'
           github_token: ${{ secrets.GITHUB_TOKEN }}
           workflow_id: 'main-build.yml'
+      - run: echo "${{ steps.last_successful_commit.outputs.commit_hash }}"
       - name: las commit
         id: last_commit
         run: |

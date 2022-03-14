@@ -15,8 +15,10 @@ jobs:
           branch: 'main'
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: las commit
-        id: last commit
-        run: echo "::set-output name=commit::$(git log -n 1 origin/main --pretty=format:"%H")"
+        id: last_commit
+        run: |
+        echo "::set-output name=commit::$(git log -n 1 origin/main --pretty=format:"%H")"
+        echo "$(git log -n 1 origin/main --pretty=format:"%H")"
       - name: Check pass state
         run: |
           if [ ${{ steps.last_successful_commit.outputs.commit_hash }} = ${{ steps.last_successful_commit.outputs.commit_hash }} ]; then

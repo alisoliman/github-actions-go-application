@@ -13,7 +13,7 @@ jobs:
         id: last_successful_commit
         with:
           branch: 'master'
-          workflow_id: 'main-build.yml'
+          workflow_id: 'ci-build.yml'
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - run: echo "${{ steps.last_successful_commit.outputs.commit_hash }}"
 
